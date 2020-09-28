@@ -1,4 +1,4 @@
-setwd("/Users/isiscosta/Downloads/Biomar_fadmodels/data/")
+setwd("/local/charles/Personales/DataSCOUT/Scite/scite_tableau")
 
 library(readxl)
 library(tidyverse)
@@ -6,6 +6,7 @@ library(data.table)
 #dat1 <- read_xlsx("Predictions_Rotifers.xlsx")
 #dat2 <- read_xlsx("Predictions_Artemia.xlsx")
 dat1 <- fread("Predictions_Artemia.csv")
+dat1$Time <- dat1$Time + 6
 dat2 <- fread("Predictions_Rotifers.csv")
 
 
@@ -19,23 +20,48 @@ nrow(dat1)
 nrow(dat2)
 
 dat <- rbind(dat1,dat2)
+#Products 1-3
 dat3 <- dat
 dat4 <- dat
-dat3$company  <- "Competitor-A"
-dat4$company <- "Competitor-B"
+dat5 <- dat
+dat3$company  <- "Product 1"
+dat4$company <- "Product 2"
+dat5$company <- "Product 3"
+#Products 4-6
+dat6 <- dat
+dat7 <- dat
+dat8 <- dat
+dat6$company  <- "Product 4"
+dat7$company <- "Product 5"
+dat8$company <- "Product 6"
+
 positions <-  seq(from=6, to=48, by=3)
 for(i  in  positions){
   dat1[[i]] <- as.numeric(dat1[[i]])
   dat2[[i]] <- as.numeric(dat2[[i]])
   dat[[i]] <- as.numeric(dat[[i]])
+  ### Fake competitor products 1-3
   dat3[[i]] <- as.numeric(dat3[[i]])
   dat4[[i]] <- as.numeric(dat4[[i]])
-  dat3[[i]] <- as.numeric(quantile(dat1[[i]], probs = 0.4))
-  dat4[[i]] <- as.numeric(quantile(dat2[[i]], probs = 0.3))
+  dat5[[i]] <- as.numeric(dat5[[i]])
+  dat3[[i]] <- as.numeric(quantile(dat1[[i]], probs = 0.2))
+  dat4[[i]] <- as.numeric(quantile(dat2[[i]], probs = 0.5))
+  dat5[[i]] <- as.numeric(quantile(dat2[[i]], probs = 0.7))
+  ### About product 4-6
+  dat6[[i]] <- as.numeric(dat6[[i]])
+  dat7[[i]] <- as.numeric(dat7[[i]])
+  dat8[[i]] <- as.numeric(dat8[[i]])
+  dat6[[i]] <- 0
+  dat7[[i]] <- 0
+  dat8[[i]] <- 0
 }
 
 dat <- rbind(dat,dat3)
 dat <- rbind(dat,dat4)
+dat <- rbind(dat,dat5)
+dat <- rbind(dat,dat6)
+dat <- rbind(dat,dat7)
+dat <- rbind(dat,dat8)
 
 options(digits=12)
 dat %>% select(Time, 
@@ -91,22 +117,5 @@ dat %>% select(Time,
   mutate(maxim = max(Measure))%>%
   ungroup()%>%
   dplyr::mutate(prop = as.numeric(Measure)/as.numeric(maxim))%>%
-  openxlsx::write.xlsx("/Users/isiscosta/Documents/Radar plot_Radar plot.xlsx", dec = ".")
+  openxlsx::write.xlsx("/local/charles/Personales/DataSCOUT/Scite/scite_tableau/Radar plot.xlsx", dec = ".")
 
-
-library(readxl)
-
-test <- read_xlsx("radar plot.xlsx")
-head(test)
-table(test$type)
-test %>% filter(Time == 30, Dose == 1, Density == 300, Temperature == 24, company == "Biomar")
-test %>% filter(Time == 30, Dose == 1, Density == 300, Temperature == 24, company == "Competitor-A")
-test %>% filter(Time == 30, Dose == 1, Density == 300, Temperature == 28, company == "Biomar")
-test %>% filter(Time == 30, Dose == 1, Density == 300, Temperature == 28, company == "Competitor-A")
-
-
-
-test$Measure <- as.numeric(test$Measure)
-test$maxim <- as.numeric(test$maxim)
-
-test %>% filter(Measure < 0)
